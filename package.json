@@ -11,7 +11,8 @@
     "url": "git+https://github.com/grawk/nemo-runner.git"
   },
   "bin": {
-    "nemo-runner": "./bin/runner"
+    "nemo-runner": "./bin/nemo-runner",
+    "_nemo-runner": "./bin/_nemo-runner"
   },
   "keywords": [
     "nemo",
