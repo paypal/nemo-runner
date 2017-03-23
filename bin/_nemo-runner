@@ -12,9 +12,12 @@ var fs = require('fs');
 var resolve = path.resolve;
 var exists = fs.existsSync || path.existsSync;
 var Mocha = require('mocha');
+var mocha;
 var Nemo = require('nemo');
 var join = path.join;
 var cwd = process.cwd();
+var glob = require('glob');
+let testFiles = [];
 
 function list(val) {
     return val.split(',');
@@ -29,15 +32,27 @@ program
     .option('-P, --profile [profile]', 'which profile(s) to run, out of the configuration', list)
     .option('-G, --grep <pattern>', 'only run tests matching <pattern>', list)
     .option('-F, --file ', 'run parallel by file')
-    .option('-F, --file ', 'run parallel by file')
     .option('--debug-brk', "enable node's debugger breaking on the first line")
     .option('--inspect', 'activate devtools in chrome')
     .parse(process.argv);
 program._name = 'nemo-runner';
+Nemo.Configure(program.baseDirectory, {}).then(function (config) {
+    let base = config.get(`profiles:base`);
+    let target = program.profile && config.get(`profiles:${program.profile}`);
 
-Nemo.Configure(program.baseDirectory).then(function (config) {
-    console.log(config.get('.'));
-})
-    .catch(function (err) {
-        console.error(err);
+    let profileConf = Object.assign(base, target);
+    let testFileGlob = path.resolve(program.baseDirectory, profileConf.tests);
+    glob(testFileGlob, {}, function (er, files) {
+        // files is an array of filenames.
+        // If the `nonull` option is set, and nothing
+        // was found, then files is ["**/*.js"]
+        // er is an error object or null.
+        console.log(files);
+        testFiles = files;
+        go();
     });
+});
+//baseDirectory (static)
+//test glob (dynamic)
+//mocha config (dynamic)
+//driver config (dynamic)
