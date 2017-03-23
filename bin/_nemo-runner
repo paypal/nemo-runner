@@ -10,14 +10,13 @@ var program = require('commander');
 var path = require('path');
 var fs = require('fs');
 var resolve = path.resolve;
-var exists = fs.existsSync || path.existsSync;
-var Mocha = require('mocha');
-var mocha;
+
 var Nemo = require('nemo');
 var join = path.join;
 var cwd = process.cwd();
 var glob = require('glob');
 let testFiles = [];
+let go = require('../lib/instance');
 
 function list(val) {
     return val.split(',');
@@ -49,7 +48,7 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
         // er is an error object or null.
         console.log(files);
         testFiles = files;
-        go();
+        go(program, profileConf, testFiles);
     });
 });
 //baseDirectory (static)
