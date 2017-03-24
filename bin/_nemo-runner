@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 'use strict';
 
 
@@ -6,21 +7,23 @@
  * Module dependencies.
  */
 
-var program = require('commander');
-var path = require('path');
-var fs = require('fs');
-var resolve = path.resolve;
+let program = require('commander');
+const path = require('path');
+const fs = require('fs');
+const resolve = path.resolve;
+const spawn = require('threads').spawn;
 
-var Nemo = require('nemo');
-var join = path.join;
-var cwd = process.cwd();
-var glob = require('glob');
+const Nemo = require('nemo');
+const cwd = process.cwd();
+const glob = require('glob');
 let testFiles = [];
-let go = require('../lib/instance');
+const instance = require('../lib/instance');
+const async = require('async');
 
 function list(val) {
     return val.split(',');
 }
+
 function cwdPath(rel) {
     return path.resolve(cwd, rel);
 }
@@ -29,29 +32,66 @@ program
     .usage('[options]')
     .option('-B, --base-directory <path>', 'parent directory for config/ and spec/ (or other test file) directories. relative to cwd', cwdPath)
     .option('-P, --profile [profile]', 'which profile(s) to run, out of the configuration', list)
-    .option('-G, --grep <pattern>', 'only run tests matching <pattern>', list)
-    .option('-F, --file ', 'run parallel by file')
+    .option('-G, --grep <pattern>', 'only run tests matching <pattern>')
+    // .option('-F, --file ', 'run parallel by file')
     .option('--debug-brk', "enable node's debugger breaking on the first line")
     .option('--inspect', 'activate devtools in chrome')
     .parse(process.argv);
 program._name = 'nemo-runner';
-Nemo.Configure(program.baseDirectory, {}).then(function (config) {
+Nemo.Configure(program.baseDirectory, {}).then(function(config) {
     let base = config.get(`profiles:base`);
-    let target = program.profile && config.get(`profiles:${program.profile}`);
-
-    let profileConf = Object.assign(base, target);
-    let testFileGlob = path.resolve(program.baseDirectory, profileConf.tests);
-    glob(testFileGlob, {}, function (er, files) {
-        // files is an array of filenames.
-        // If the `nonull` option is set, and nothing
-        // was found, then files is ["**/*.js"]
-        // er is an error object or null.
-        console.log(files);
-        testFiles = files;
-        go(program, profileConf, testFiles);
+    let profiles = program.profile;
+    profiles = (profiles instanceof Array) ? profiles : [profiles];
+    let profilesConf = profiles.map(function(profile) {
+        let profileConf = config.get(`profiles:${profile}`);
+        return Object.assign({}, base, profileConf);
     });
+    // let testFileGlob = path.resolve(program.baseDirectory, profilesConf[0].tests);
+    let testFileGlobs = profilesConf.map(function(pconf) {
+        return function(cb) {
+            let testFileGlob = path.resolve(program.baseDirectory, pconf.tests);
+            glob(testFileGlob, {}, function(err, files) {
+                if (err) {
+                    return cb(err);
+                }
+                pconf.tests = files;
+                cb(null, pconf);
+                // instance(program, profilesConf[0], testFiles);
+            });
+        }
+    });
+    async.series(testFileGlobs, function(err, profileConfs) {
+        console.log('result of async', profileConfs);
+        if (profileConfs.length === 1) {
+            return instance({
+                basedir: program.baseDirectory,
+                profile: profileConfs[0]
+            });
+        }
+        //parallel use case
+        profileConfs.forEach(function(profileConf) {
+            const thread = spawn(instance);
+
+            thread
+                .send({
+                    basedir: program.baseDirectory,
+                    profile: profileConf,
+                    parallel: true
+                })
+                // The handlers come here: (none of them is mandatory)
+                .on('message', function(response) {
+                    console.log(response);
+                    thread.kill();
+                })
+                .on('error', function(error) {
+                    console.error('Worker errored:', error);
+                    thread.kill();
+                })
+                .on('exit', function() {
+                    console.log('Worker has been terminated.');
+                });
+
+        });
+    })
+
 });
-//baseDirectory (static)
-//test glob (dynamic)
-//mocha config (dynamic)
-//driver config (dynamic)
