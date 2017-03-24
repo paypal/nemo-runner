@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 'use strict';
 
 
@@ -11,8 +10,7 @@ let program = require('commander');
 const path = require('path');
 const fs = require('fs');
 const resolve = path.resolve;
-const spawn = require('threads').spawn;
-
+const Pool = require('threads').Pool;
 const Nemo = require('nemo');
 const cwd = process.cwd();
 const glob = require('glob');
@@ -23,7 +21,6 @@ const async = require('async');
 function list(val) {
     return val.split(',');
 }
-
 function cwdPath(rel) {
     return path.resolve(cwd, rel);
 }
@@ -38,19 +35,30 @@ program
     .option('--inspect', 'activate devtools in chrome')
     .parse(process.argv);
 program._name = 'nemo-runner';
-Nemo.Configure(program.baseDirectory, {}).then(function(config) {
+Nemo.Configure(program.baseDirectory, {}).then(function (config) {
     let base = config.get(`profiles:base`);
     let profiles = program.profile;
+    const pool = new Pool(base.threads || 2);
+    pool.on('done', function (job, message) {
+        console.log('Job done:', message);
+    })
+        .on('finished', function() {
+            console.log('Everything done, shutting down the thread pool.');
+            pool.killAll();
+        })
+        .on('error', function(job, error) {
+            console.error('Job errored:', error);
+        })
     profiles = (profiles instanceof Array) ? profiles : [profiles];
-    let profilesConf = profiles.map(function(profile) {
+    let profilesConf = profiles.map(function (profile) {
         let profileConf = config.get(`profiles:${profile}`);
         return Object.assign({}, base, profileConf);
     });
     // let testFileGlob = path.resolve(program.baseDirectory, profilesConf[0].tests);
-    let testFileGlobs = profilesConf.map(function(pconf) {
-        return function(cb) {
+    let testFileGlobs = profilesConf.map(function (pconf) {
+        return function (cb) {
             let testFileGlob = path.resolve(program.baseDirectory, pconf.tests);
-            glob(testFileGlob, {}, function(err, files) {
+            glob(testFileGlob, {}, function (err, files) {
                 if (err) {
                     return cb(err);
                 }
@@ -60,37 +68,15 @@ Nemo.Configure(program.baseDirectory, {}).then(function(config) {
             });
         }
     });
-    async.series(testFileGlobs, function(err, profileConfs) {
+    async.series(testFileGlobs, function (err, profileConfs) {
         console.log('result of async', profileConfs);
         if (profileConfs.length === 1) {
-            return instance({
-                basedir: program.baseDirectory,
-                profile: profileConfs[0]
-            });
+            return instance({basedir: program.baseDirectory, profile: profileConfs[0]});
         }
         //parallel use case
-        profileConfs.forEach(function(profileConf) {
-            const thread = spawn(instance);
-
-            thread
-                .send({
-                    basedir: program.baseDirectory,
-                    profile: profileConf,
-                    parallel: true
-                })
-                // The handlers come here: (none of them is mandatory)
-                .on('message', function(response) {
-                    console.log(response);
-                    thread.kill();
-                })
-                .on('error', function(error) {
-                    console.error('Worker errored:', error);
-                    thread.kill();
-                })
-                .on('exit', function() {
-                    console.log('Worker has been terminated.');
-                });
-
+        profileConfs.forEach(function (profileConf) {
+            pool.run(instance)
+                .send({basedir: program.baseDirectory, profile: profileConf, parallel: true});
         });
     })
 
