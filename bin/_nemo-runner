@@ -39,17 +39,9 @@ program._name = 'nemo-runner';
 Nemo.Configure(program.baseDirectory, {}).then(function (config) {
     let base = config.get(`profiles:base`);
     let profiles = program.profile;
+    let result = {suite: '', total: 0, pass: 0, fail: 0};
     const pool = new Pool(base.threads || 2);
-    pool.on('done', function (job, message) {
-        console.log('Job done:', message);
-    })
-        .on('finished', function() {
-            console.log('Everything done, shutting down the thread pool.');
-            pool.killAll();
-        })
-        .on('error', function(job, error) {
-            console.error('Job errored:', error);
-        })
+
     profiles = (profiles instanceof Array) ? profiles : [profiles];
     let profilesConf = profiles.map(function (profile) {
         let profileConf = config.get(`profiles:${profile}`);
@@ -65,11 +57,10 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
                 }
                 pconf.tests = files;
                 cb(null, pconf);
-                // instance(program, profilesConf[0], testFiles);
             });
         }
     });
-    async.series(testFileGlobs, function (err, profileConfs) {
+    async.parallel(testFileGlobs, function (err, profileConfs) {
         console.log('result of async', profileConfs);
         if (profileConfs.length === 1) {
             return instance({basedir: program.baseDirectory, profile: profileConfs[0]});
@@ -79,6 +70,21 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
             pool.run(instance)
                 .send({basedir: program.baseDirectory, profile: profileConf});
         });
+    });
+    pool.on('done', function (job, summary) {
+        console.log('Thread complete', summary);
+        result.total += summary.total;
+        result.pass += summary.pass;
+        result.fail += summary.fail;
+        result.label = summary.label;
     })
+        .on('finished', function () {
+            console.log('Everything done, shutting down the thread pool.');
+            console.log(result);
+            pool.killAll();
+        })
+        .on('error', function (job, error) {
+            console.error('Job errored:', error);
+        })
 
 });
