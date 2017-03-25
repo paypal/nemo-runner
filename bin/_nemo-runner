@@ -30,7 +30,7 @@ program
     .usage('[options]')
     .option('-B, --base-directory <path>', 'parent directory for config/ and spec/ (or other test file) directories. relative to cwd', cwdPath)
     .option('-P, --profile [profile]', 'which profile(s) to run, out of the configuration', list)
-    .option('-G, --grep <pattern>', 'only run tests matching <pattern>')
+    .option('-G, --grep <pattern>', 'only run tests matching <pattern>', list)
     // .option('-F, --file ', 'run parallel by file')
     .option('--debug-brk', "enable node's debugger breaking on the first line")
     .option('--inspect', 'activate devtools in chrome')
@@ -39,13 +39,29 @@ program._name = 'nemo-runner';
 Nemo.Configure(program.baseDirectory, {}).then(function (config) {
     let base = config.get(`profiles:base`);
     let profiles = program.profile;
-    let result = {label: [], total: 0, pass: 0, fail: 0};
+    let greps = program.grep || '';
+    let results = [];
     const pool = new Pool(base.threads || 2);
 
     profiles = (profiles instanceof Array) ? profiles : [profiles];
-    let profilesConf = profiles.map(function (profile) {
-        let profileConf = config.get(`profiles:${profile}`);
-        return Object.assign({}, base, profileConf, {profileLabel: profile});
+    greps = (greps instanceof Array) ? greps : [greps];
+    // let profilesConf = profiles.map(function (profile) {
+    //     let profileConf = config.get(`profiles:${profile}`);
+    //     return Object.assign({}, base, profileConf, {profileLabel: profile});
+    // });
+    let profilesConf = [];
+    profiles.forEach(function (profile) {
+
+        greps.forEach(function (grep) {
+            var profileConf = Object.assign({}, base, config.get(`profiles:${profile}`));
+            var profileLabel = `profile: ${profile}`;
+            profileLabel += (grep !== '') ? `, grep: ${grep}` : '';
+            profileConf.profileLabel = profileLabel;
+            if (grep !== '') {
+                profileConf.mocha = Object.assign({}, profileConf.mocha, {grep: grep});
+            }
+            profilesConf.push(profileConf);
+        })
     });
     // let testFileGlob = path.resolve(program.baseDirectory, profilesConf[0].tests);
     let testFileGlobs = profilesConf.map(function (pconf) {
@@ -73,14 +89,18 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
     });
     pool.on('done', function (job, summary) {
         console.log('Thread complete', summary);
-        result.total += summary.total;
-        result.pass += summary.pass;
-        result.fail += summary.fail;
-        result.label.push(summary.label);
+        results.push(summary);
     })
         .on('finished', function () {
+            let totals = {label: 'TOTAL', total: 0, pass: 0, fail: 0};
             console.log('Everything done, shutting down the thread pool.');
-            console.log(result);
+            results.forEach(function (result) {
+                totals.total += result.total;
+                totals.pass += result.pass;
+                totals.fail += result.fail;
+            });
+            results.push(totals);
+            console.log(results);
             pool.killAll();
         })
         .on('error', function (job, error) {
