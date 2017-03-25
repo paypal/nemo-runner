@@ -39,13 +39,13 @@ program._name = 'nemo-runner';
 Nemo.Configure(program.baseDirectory, {}).then(function (config) {
     let base = config.get(`profiles:base`);
     let profiles = program.profile;
-    let result = {suite: '', total: 0, pass: 0, fail: 0};
+    let result = {label: [], total: 0, pass: 0, fail: 0};
     const pool = new Pool(base.threads || 2);
 
     profiles = (profiles instanceof Array) ? profiles : [profiles];
     let profilesConf = profiles.map(function (profile) {
         let profileConf = config.get(`profiles:${profile}`);
-        return Object.assign({}, base, profileConf);
+        return Object.assign({}, base, profileConf, {profileLabel: profile});
     });
     // let testFileGlob = path.resolve(program.baseDirectory, profilesConf[0].tests);
     let testFileGlobs = profilesConf.map(function (pconf) {
@@ -76,7 +76,7 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
         result.total += summary.total;
         result.pass += summary.pass;
         result.fail += summary.fail;
-        result.label = summary.label;
+        result.label.push(summary.label);
     })
         .on('finished', function () {
             console.log('Everything done, shutting down the thread pool.');
