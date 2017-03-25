@@ -10,6 +10,7 @@ let program = require('commander');
 const path = require('path');
 const fs = require('fs');
 const resolve = path.resolve;
+const spawn = require('threads').spawn;
 const Pool = require('threads').Pool;
 const Nemo = require('nemo');
 const cwd = process.cwd();
@@ -76,7 +77,7 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
         //parallel use case
         profileConfs.forEach(function (profileConf) {
             pool.run(instance)
-                .send({basedir: program.baseDirectory, profile: profileConf, parallel: true});
+                .send({basedir: program.baseDirectory, profile: profileConf});
         });
     })
 
