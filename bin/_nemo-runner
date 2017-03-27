@@ -45,16 +45,12 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
 
     profiles = (profiles instanceof Array) ? profiles : [profiles];
     greps = (greps instanceof Array) ? greps : [greps];
-    // let profilesConf = profiles.map(function (profile) {
-    //     let profileConf = config.get(`profiles:${profile}`);
-    //     return Object.assign({}, base, profileConf, {profileLabel: profile});
-    // });
     let profilesConf = [];
     profiles.forEach(function (profile) {
 
         greps.forEach(function (grep) {
             var profileConf = Object.assign({}, base, config.get(`profiles:${profile}`));
-            var profileLabel = `profile: ${profile}`;
+            var profileLabel = `profile: ${profile || 'default'}`;
             profileLabel += (grep !== '') ? `, grep: ${grep}` : '';
             profileConf.profileLabel = profileLabel;
             if (grep !== '') {
@@ -79,7 +75,7 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
     async.parallel(testFileGlobs, function (err, profileConfs) {
         console.log('result of async', profileConfs);
         if (profileConfs.length === 1) {
-            return instance({basedir: program.baseDirectory, profile: profileConfs[0]});
+            return instance({basedir: program.baseDirectory, profile: profileConfs[0] || 'default'});
         }
         //parallel use case
         profileConfs.forEach(function (profileConf) {
