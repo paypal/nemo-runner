@@ -115,7 +115,7 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
                             totals.fail += result.fail;
                         });
                         results.push(totals);
-                        log(results);
+                        console.log(results);
 
                     }
                 });
