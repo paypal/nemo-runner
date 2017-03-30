@@ -28,6 +28,7 @@
   "homepage": "https://github.com/grawk/nemo-runner#readme",
   "dependencies": {
     "commander": "^2.9.0",
+    "debug": "^2.6.3",
     "glob": "^7.1.1",
     "lodash.merge": "^4.6.0",
     "mocha": "^3.2.0",

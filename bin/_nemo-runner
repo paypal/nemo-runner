@@ -18,6 +18,9 @@ let testFiles = [];
 const instance = require('../lib/instance');
 const async = require('async');
 const merge = require('lodash.merge');
+const debug = require('debug');
+const log = debug('nemo-runner:log');
+const error = debug('nemo-runner:error');
 
 function list(val) {
     return val.split(',');
@@ -34,6 +37,7 @@ program
     // .option('-F, --file ', 'run parallel by file')
     .option('--debug-brk', "enable node's debugger breaking on the first line")
     .option('--inspect', 'activate devtools in chrome')
+    .option('--no-timeouts', 'remove timeouts in debug/inspect use case')
     .parse(process.argv);
 program._name = 'nemo-runner';
 Nemo.Configure(program.baseDirectory, {}).then(function (config) {
@@ -51,6 +55,9 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
             var profileLabel = `profile: ${profile || 'default'}`;
             profileLabel += (grep !== '') ? `, grep: ${grep}` : '';
             profileConf.profileLabel = profileLabel;
+            if (!program.timeouts) {
+                profileConf.mocha.timeout = 1200000;
+            }
             if (grep !== '') {
                 profileConf.mocha.grep = grep;
             }
@@ -70,8 +77,10 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
         }
     });
     async.parallel(testFileGlobs, function (err, profileConfs) {
-        console.log('result of async', profileConfs);
+        log('result of async', profileConfs);
         if (profileConfs.length === 1) {
+            // TODO: the below doesn't work. not sure we can move env vars up to parent process
+            // process.env = Object.assign({}, process.env, profileConfs[0].env || {});
             return instance({basedir: program.baseDirectory, profile: profileConfs[0] || 'default'});
         }
         //parallel use case
@@ -85,7 +94,7 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
                 .send({basedir: program.baseDirectory, profile: profileConf})
                 // The handlers come here: (none of them is mandatory)
                 .on('message', function (summary) {
-                    console.log('Thread complete', summary);
+                    log('Thread complete', summary);
                     results.push(summary);
                     thread.kill();
                 })
@@ -99,14 +108,14 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
                     thread.removeAllListeners('exit');
                     if (complete === profileConfs.length) {
                         let totals = {label: 'TOTAL', total: 0, pass: 0, fail: 0};
-                        console.log('Everything done, shutting down the thread pool.');
+                        log('Everything done, shutting down the thread pool.');
                         results.forEach(function (result) {
                             totals.total += result.total;
                             totals.pass += result.pass;
                             totals.fail += result.fail;
                         });
                         results.push(totals);
-                        console.log(results);
+                        log(results);
 
                     }
                 });
