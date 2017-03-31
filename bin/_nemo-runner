@@ -61,6 +61,10 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
             if (grep !== '') {
                 profileConf.mocha.grep = grep;
             }
+            if (profileConf.mocha && profileConf.mocha.reporterOptions && profileConf.mocha.reporterOptions.reportFilename && grep !== '') {
+                //customize report filename
+                profileConf.mocha.reporterOptions.reportFilename += `.${grep}`;
+            }
             profilesConf.push(profileConf);
         })
     });
