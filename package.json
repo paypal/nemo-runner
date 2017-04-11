@@ -33,5 +33,11 @@
     "lodash.merge": "^4.6.0",
     "mocha": "^3.2.0",
     "threads": "^0.7.2"
+  },
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-plugin-es6-recommended": "^0.1.2",
+    "gulp": "^3.9.1",
+    "gulp-eslint": "^3.0.1"
   }
 }
