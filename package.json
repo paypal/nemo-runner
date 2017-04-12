@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/grawk/nemo-runner.git"
+    "url": "git+https://github.com/paypal/nemo-runner.git"
   },
   "bin": {
     "nemo-runner": "./bin/nemo-runner",
@@ -24,9 +24,9 @@
   "author": "grawk <mattedelman@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/grawk/nemo-runner/issues"
+    "url": "https://github.com/paypal/nemo-runner/issues"
   },
-  "homepage": "https://github.com/grawk/nemo-runner#readme",
+  "homepage": "https://github.com/paypal/nemo-runner#readme",
   "dependencies": {
     "commander": "^2.9.0",
     "debug": "^2.6.3",
