@@ -96,6 +96,33 @@ npm run nemo
 
 You should have seen two Firefox and two Chrome browser instances open and execute the scripts.
 
+## CLI arguments
+
+```sh
+  Usage: _nemo-runner [options]
+
+  Options:
+
+    -h, --help                   output usage information
+    -V, --version                output the version number
+    -B, --base-directory <path>  parent directory for config/ and spec/ (or other test file) directories. relative to cwd
+    -P, --profile [profile]      which profile(s) to run, out of the configuration
+    -G, --grep <pattern>         only run tests matching <pattern>
+    --debug-brk                  enable node's debugger breaking on the first line
+    --inspect                    activate devtools in chrome
+    --no-timeouts                remove timeouts in debug/inspect use case
+
+```
+
 ## How it works
 
-### CLI arguments
+nemo-runner injects a `nemo` instance into the Mocha context (for it, before, after, etc functions) which can be accessed by
+`this.nemo` within the test suites.
+
+nemo-runner will execute in parallel `-P (profile)` x `-G (grep)` mocha instances. The example above uses "browser" as the
+profile dimension and suite name as the "grep" dimension. Giving 2x2=4 parallel executions.
+
+Since the stdout output is coming to the parent process as it happens, it is most useful to incorporate a reporter which
+can output a separate file per parallel instance. Try using "mochawesome" for that. You will find that nemo-runner is
+already set up to use mochawesome reports and give them an appropriate filename. [Please have a look at the nemo-example-app
+for a full example using "mochawesome"](https://github.com/paypal/nemo-example-app/blob/nemo-3-alpha/test/functional/config/profiles.json).
