@@ -6,19 +6,19 @@
  * Module dependencies.
  */
 
-let program = require('commander');
-const path = require('path');
-const fs = require('fs');
-const spawn = require('threads').spawn;
-const Nemo = require('nemo');
-const cwd = process.cwd();
-const glob = require('glob');
-const instance = require('../lib/instance');
-const async = require('async');
-const merge = require('lodash.merge');
-const debug = require('debug');
-const log = debug('nemo-runner:log');
-const error = debug('nemo-runner:error');
+var program = require('commander');
+var path = require('path');
+var fs = require('fs');
+var spawn = require('threads').spawn;
+var Nemo = require('nemo');
+var cwd = process.cwd();
+var glob = require('glob');
+var instance = require('../lib/instance');
+var async = require('async');
+var merge = require('lodash.merge');
+var debug = require('debug');
+var log = debug('nemo-runner:log');
+var error = debug('nemo-runner:error');
 
 function list(val) {
   return val.split(',');
@@ -39,18 +39,18 @@ program
   .parse(process.argv);
 program._name = 'nemo-runner';
 Nemo.Configure(program.baseDirectory, {}).then(function (config) {
-  let base = config.get('profiles:base');
-  let profiles = program.profile;
-  let greps = program.grep || '';
-  let results = [];
-
+  var base = config.get('profiles:base');
+  var profiles = program.profile;
+  var greps = program.grep || '';
+  var results = [];
+  var profilesConf = [];
+  var testFileGlobs;
   profiles = (profiles instanceof Array) ? profiles : [profiles];
   greps = (greps instanceof Array) ? greps : [greps];
-  let profilesConf = [];
   profiles.forEach(function (profile) {
     greps.forEach(function (grep) {
-      let profileConf = merge(merge({}, base), config.get(`profiles:${profile}`));
-      let profileLabel = `profile: ${profile || 'default'}`;
+      var profileConf = merge(merge({}, base), config.get(`profiles:${profile}`));
+      var profileLabel = `profile: ${profile || 'default'}`;
       profileLabel = profileLabel + ((grep !== '') ? `, grep: ${grep}` : '');
       profileConf.profileLabel = profileLabel;
       if (!program.timeouts) {
@@ -66,9 +66,9 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
       profilesConf.push(profileConf);
     });
   });
-  let testFileGlobs = profilesConf.map(function (pconf) {
+  testFileGlobs = profilesConf.map(function (pconf) {
     return function (cb) {
-      let testFileGlob = path.resolve(program.baseDirectory, pconf.tests);
+      var testFileGlob = path.resolve(program.baseDirectory, pconf.tests);
       glob(testFileGlob, {}, function (err, files) {
         if (err) {
           return cb(err);
@@ -79,6 +79,7 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
     };
   });
   async.parallel(testFileGlobs, function (err, profileConfs) {
+    var complete = 0;
     if (err) {
       error(err);
       process.exit();
@@ -90,11 +91,10 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
       return instance({basedir: program.baseDirectory, profile: profileConfs[0] || 'default'});
     }
     // parallel use case
-    let complete = 0;
     profileConfs.forEach(function (profileConf) {
-      // let kv = {};
+      // var kv = {};
       // Object.keys(process.env).forEach(function ())
-      const thread = spawn(instance, {env: Object.assign({}, process.env, profileConf.env || {})});
+      var thread = spawn(instance, {env: Object.assign({}, process.env, profileConf.env || {})});
 
       thread
         .send({basedir: program.baseDirectory, profile: profileConf})
@@ -108,12 +108,13 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
           error(er);
         })
         .on('exit', function () {
+          var totals;
           complete = complete + 1;
           thread.removeAllListeners('message');
           thread.removeAllListeners('error');
           thread.removeAllListeners('exit');
           if (complete === profileConfs.length) {
-            let totals = {label: 'TOTAL', total: 0, pass: 0, fail: 0};
+            totals = {label: 'TOTAL', total: 0, pass: 0, fail: 0};
             log('Everything done, shutting down the thread pool.');
             results.forEach(function (result) {
               totals.total = totals.total + result.total;

@@ -199,7 +199,7 @@ module.exports = {
     //
     // These rules are only relevant to ES6 environments and are off by default.
     //
-    "no-var": 2, // require let or const instead of var (off by default)
+    // "no-var": 2, // require let or const instead of var (off by default)
     "generator-star-spacing": [2, "before"], // enforce the spacing around the * in generator functions (off by default)
 
     //
