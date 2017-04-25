@@ -7,7 +7,7 @@ Wrapper to run nemo/mocha suites
 Install nemo-runner and nemo
 
 ```sh
-npm install --save-dev nemo@3.0.0-alpha.4 nemo-runner@~0.0.1
+npm install --save-dev nemo@3.0.0-alpha.6 nemo-runner@1.0.0-alpha.2
 ```
 
 Install chromedriver and GeckoDriver to your $PATH
@@ -42,6 +42,7 @@ test
       "mocha": {
         "timeout": 180000,
         "retries": 0,
+        "require": "babel-register",
         "grep": "argv:grep"
       }
     },
@@ -126,3 +127,24 @@ Since the stdout output is coming to the parent process as it happens, it is mos
 can output a separate file per parallel instance. Try using "mochawesome" for that. You will find that nemo-runner is
 already set up to use mochawesome reports and give them an appropriate filename. [Please have a look at the nemo-example-app
 for a full example using "mochawesome"](https://github.com/paypal/nemo-example-app/blob/nemo-3-alpha/test/functional/config/profiles.json).
+
+### Mocha options
+
+The properties passed in to the `"mocha"` property of `config.json` will be applied to the `mocha` instances that are created. In general, these properties correlate with the `mocha` command line arguments. E.g. if you want this:
+
+```sh
+mocha --timeout 180000
+```
+
+You should add this to the `"mocha"` property within `"profiles"` of `config.json`:
+
+```json
+"profile": {
+	...other stuff,
+	"mocha": {
+		"timeout": 180000
+	}
+}
+```
+
+`nemo-runner` creates `mocha` instances programmatically. Unfortunately, not all `mocha` command line options are available when instantiating it this way. One of the arguments that is **not** supported is the `--require` flag, which useful if you want to `require` a module, e.g. `babel-register` for transpilation. Thus, we added a `"require"` property in `config.json`, which takes a string of a single npm module name, or an array of npm module names. If it is an array, `nemo-runner` will `require` each one before instantiating the `mocha` instances.
