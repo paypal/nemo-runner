@@ -1,6 +1,5 @@
 module.exports = {
   "env": {
-    "browser": true,
     "node": true,
     "es6": true
   },
@@ -215,6 +214,5 @@ module.exports = {
     "max-statements": 0, // specify the maximum number of statement allowed in a function (off by default)
     "no-bitwise": 0, // disallow use of bitwise operators (off by default)
     "no-plusplus": 2 // disallow use of unary operators, ++ and -- (off by default)
-
   }
 }
