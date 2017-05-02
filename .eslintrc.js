@@ -84,7 +84,7 @@ module.exports = {
     "no-caller": 2, // disallow use of arguments.caller or arguments.callee
     "no-div-regex": 2, // disallow division operators explicitly at beginning of regular expression (off by default)
     "no-else-return": 2, // disallow else after a return in an if (off by default)
-    "no-labels": 2, // disallow use of labels for anything other then loops and switches
+    "no-labels": 2, // disallow use of labels for anything other then loops, switches and labeled statements
     "no-eq-null": 2, // disallow comparisons to null without a type-checking operator (off by default)
     "no-eval": 2, // disallow use of eval()
     "no-extend-native": 2, // disallow adding to native types
@@ -93,7 +93,6 @@ module.exports = {
     "no-floating-decimal": 2, // disallow the use of leading or trailing decimal points in numeric literals (off by default)
     "no-implied-eval": 2, // disallow use of eval()-like methods
     "no-iterator": 2, // disallow usage of __iterator__ property
-    "no-labels": 2, // disallow use of labeled statements
     "no-lone-blocks": 2, // disallow unnecessary nested blocks
     "no-loop-func": 2, // disallow creation of functions within loops
     "no-multi-spaces": 2, // disallow use of multiple spaces
