@@ -115,6 +115,18 @@ You should have seen two Firefox and two Chrome browser instances open and execu
 
 ```
 
+## Profile options
+
+`base` is the main profile configuration that others will merge into
+
+`base.tests` is an absolute path based glob pattern. (e.g. `"tests": "path:spec/!(wdb)*.js",`)
+
+`base.parallel` only valid for 'base'. if set to 'file' it will create a child process for each mocha file
+
+`base.mocha` mocha options. described elsewhere
+
+`base.env` any environment variables you want in the test process
+
 ## How it works
 
 nemo-runner injects a `nemo` instance into the Mocha context (for it, before, after, etc functions) which can be accessed by
