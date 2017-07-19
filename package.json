@@ -1,6 +1,6 @@
 {
   "name": "nemo-runner",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Wrapper to run nemo/mocha suites",
   "main": "index.js",
   "scripts": {
@@ -32,6 +32,8 @@
   },
   "homepage": "https://github.com/grawk/nemo-runner#readme",
   "dependencies": {
+    "async": "^2.5.0",
+    "bluebird": "^3.5.0",
     "commander": "^2.9.0",
     "debug": "^2.6.3",
     "glob": "^7.1.1",
