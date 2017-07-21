@@ -20,6 +20,7 @@ var merge = require('lodash.merge');
 var debug = require('debug');
 var log = debug('nemo-runner:log');
 var error = debug('nemo-runner:error');
+var filenamify = require('filenamify');
 
 function list(val) {
   return val.split(',');
@@ -46,11 +47,27 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
   var results = [];
   var profilesConf = [];
   var profileFns = [];
+
+  function filenameAppend(conf, str) {
+    // handles "mochawesome" and "mocha-jenkins-reporter" so far
+    if (!conf.mocha.reporterOptions) {
+      error('didnt find reporterOptions');
+      return;
+    }
+    if (conf.mocha.reporterOptions.reportFilename) {
+      conf.mocha.reporterOptions.reportFilename = `${conf.mocha.reporterOptions.reportFilename}_${str}`;
+    }
+    if (conf.mocha.reporterOptions.junit_report_path) {
+      conf.mocha.reporterOptions.junit_report_path = conf.mocha.reporterOptions.junit_report_path.replace(/\.xml$/, `_${str}.xml`);
+    }
+  }
+
   profiles = (profiles instanceof Array) ? profiles : [profiles];
   greps = (greps instanceof Array) ? greps : [greps];
   profiles.forEach(function (profile) {
+    var profileObj = config.get(`profiles:${profile}`);
     greps.forEach(function (grep) {
-      var profileConf = merge(merge({}, base), config.get(`profiles:${profile}`));
+      var profileConf = merge({}, base, profileObj);
       var profileLabel = `profile: ${profile || 'default'}`;
       profileLabel = profileLabel + ((grep !== '') ? `, grep: ${grep}` : '');
       profileConf.profileLabel = profileLabel;
@@ -59,10 +76,7 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
       }
       if (grep !== '') {
         profileConf.mocha.grep = grep;
-      }
-      if (profileConf.mocha && profileConf.mocha.reporterOptions && profileConf.mocha.reporterOptions.reportFilename && grep !== '') {
-        // customize report filename
-        profileConf.mocha.reporterOptions.reportFilename = `${profileConf.mocha.reporterOptions.reportFilename}.${grep}`;
+        filenameAppend(profileConf, filenamify(grep));
       }
       profilesConf.push(profileConf);
     });
@@ -80,16 +94,13 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
       }
       log('result of async', profileConfs);
       if (profileConfs.length === 1) {
-        // TODO: the below doesn't work. not sure we can move env vars up to parent process
-        // process.env = Object.assign({}, process.env, profileConfs[0].env || {});
+        // TODO: below doesn't impact debuglogs of modules already loaded
+        process.env = Object.assign({}, process.env, profileConfs[0].env || {});
         return instance({basedir: program.baseDirectory, profile: profileConfs[0] || 'default'});
       }
       // parallel use case
       profileConfs.forEach(function (profileConf) {
-        // var kv = {};
-        // Object.keys(process.env).forEach(function ())
         var thread = spawn(instance, {env: Object.assign({}, process.env, profileConf.env || {})});
-
         thread
           .send({basedir: program.baseDirectory, profile: profileConf})
           // The handlers come here: (none of them is mandatory)
@@ -143,17 +154,16 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
     pAssembler = function (pconf) {
       var testFileGlob = path.resolve(program.baseDirectory, pconf.tests);
       glob(testFileGlob, {}, function (err, files) {
+        if (err) {
+          return rej(err);
+        }
         files.forEach(function (file) {
           var justFile = file.split(program.baseDirectory)[1];
-          justFile = justFile.replace(/\//g, '-');
+          justFile = filenamify(justFile);
           profileFns.push(function (cb) {
-            // var testFileGlob = path.resolve(program.baseDirectory, pconf.tests);
             var _pconf = merge({}, pconf);
             _pconf.tests = [file];
-            if (_pconf.mocha && _pconf.mocha.reporterOptions && _pconf.mocha.reporterOptions.reportFilename) {
-              _pconf.mocha.reporterOptions.reportFilename += `.${justFile}`;
-            }
-            _pconf.profileLabel += `, file: ${justFile}`;
+            filenameAppend(_pconf, justFile);
             cb(null, _pconf);
           });
         });
@@ -162,9 +172,6 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
     };
   }
   profilesConf.forEach(pAssembler);
-
-
-
 
 
 });

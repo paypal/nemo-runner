@@ -1,0 +1,26 @@
+{
+    "driver": {
+        "browser": "phantomjs"
+    },
+    "data": {
+        "baseUrl": "https://www.paypal.com"
+    },
+    "profiles": {
+        "base": {
+            "tests": "path:./*.js",
+            "parallel": "file",
+            "env": {
+                "DEBUG": "nemo-runner*"
+            },
+            "mocha": {
+                "timeout": 180000,
+                "reporter": "mochawesome",
+                "retries": 5,
+                "reporterOptions": {
+                    "reportDir": "path:report",
+                    "reportFilename": "nemo-chrome"
+                }
+            }
+        }
+    }
+}

@@ -4,8 +4,8 @@
   "description": "Wrapper to run nemo/mocha suites",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint",
-    "lint": "eslint . ./bin/*"
+    "test": "npm run lint && ./bin/nemo-runner -B test -G @suite1",
+    "lint": "eslint ./bin/* ./lib/*"
   },
   "repository": {
     "type": "git",
@@ -36,6 +36,7 @@
     "bluebird": "^3.5.0",
     "commander": "^2.9.0",
     "debug": "^2.6.3",
+    "filenamify": "^2.0.0",
     "glob": "^7.1.1",
     "lodash.merge": "^4.6.0",
     "mocha": "^3.2.0",
@@ -43,6 +44,8 @@
   },
   "devDependencies": {
     "eslint": "^3.19.0",
-    "eslint-plugin-es6-recommended": "^0.1.2"
+    "eslint-plugin-es6-recommended": "^0.1.2",
+    "mochawesome": "^2.3.0",
+    "nemo": "^2.4.1"
   }
 }

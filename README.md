@@ -7,7 +7,7 @@ Wrapper to run nemo/mocha suites
 Install nemo-runner and nemo
 
 ```sh
-npm install --save-dev nemo@3.0.0-alpha.6 nemo-runner@1.0.0-alpha.2
+npm install --save-dev nemo@3.0.0-alpha.6 nemo-runner@^1
 ```
 
 Install chromedriver and GeckoDriver to your $PATH
@@ -126,6 +126,10 @@ You should have seen two Firefox and two Chrome browser instances open and execu
 `base.mocha` mocha options. described elsewhere
 
 `base.env` any environment variables you want in the test process
+
+## Reporters
+
+Recommended reporters are `mochawesome` or `mocha-jenkins-reporter`. `nemo-runner` will automatically append grep/test file names to report names when using either of these.
 
 ## How it works
 
