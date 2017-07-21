@@ -7,7 +7,7 @@ Wrapper to run nemo/mocha suites
 Install nemo-runner and nemo
 
 ```sh
-npm install --save-dev nemo@3.0.0-alpha.6 nemo-runner@^1
+npm install --save-dev nemo nemo-runner
 ```
 
 Install chromedriver and GeckoDriver to your $PATH
