@@ -1,6 +1,6 @@
 {
   "name": "nemo-runner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Wrapper to run nemo/mocha suites",
   "main": "index.js",
   "scripts": {
