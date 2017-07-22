@@ -39,14 +39,15 @@ program
   .option('--inspect', 'activate devtools in chrome')
   .option('--no-timeouts', 'remove timeouts in debug/inspect use case')
   .parse(process.argv);
+
 program._name = 'nemo-runner';
+
 Nemo.Configure(program.baseDirectory, {}).then(function (config) {
   var base = config.get('profiles:base');
   var profiles = program.profile;
   var greps = program.grep || '';
   var results = [];
   var profilesConf = [];
-  var profileFns = [];
 
   function filenameAppend(conf, str) {
     // handles "mochawesome" and "mocha-jenkins-reporter" so far
@@ -64,9 +65,12 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
 
   profiles = (profiles instanceof Array) ? profiles : [profiles];
   greps = (greps instanceof Array) ? greps : [greps];
-  profiles.forEach(function (profile) {
+
+  profiles.forEach(function (profile, pIndex, pArray) {
+    log('profile %s', profile);
     var profileObj = config.get(`profiles:${profile}`);
-    greps.forEach(function (grep) {
+    greps.forEach(function (grep, gIndex, gArray) {
+      log('grep %s', grep);
       var profileConf = merge({}, base, profileObj);
       var profileLabel = `profile: ${profile || 'default'}`;
       profileLabel = profileLabel + ((grep !== '') ? `, grep: ${grep}` : '');
@@ -78,15 +82,38 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
         profileConf.mocha.grep = grep;
         filenameAppend(profileConf, filenamify(grep));
       }
-      profilesConf.push(profileConf);
+      var testFileGlob = path.resolve(program.baseDirectory, profileConf.tests);
+      glob(testFileGlob, {}, function (err, files) {
+        log('glob %s', files);
+        if (err) {
+          return rej(err);
+        }
+        if (base.parallel && base.parallel === 'file') {
+          files.forEach(function (file) {
+            var justFile = file.split(program.baseDirectory)[1];
+            justFile = filenamify(justFile);
+            var _pconf = merge({}, profileConf);
+            _pconf.tests = [file];
+            filenameAppend(_pconf, justFile);
+            log('push file profile %s', profileConf);
+            profilesConf.push(_pconf);
+          });
+        } else {
+          profileConf.tests = files;
+          profilesConf.push(profileConf);
+        }
+        if (pIndex === pArray.length - 1 && gIndex === gArray.length - 1) {
+          kickoff(profilesConf);
+        }
+      });
+
     });
   });
-  let res, rej;
-  new Promise(function (resolve, reject) {
-    res = resolve;
-    rej = reject;
-  }).then(function kickoff() {
-    async.parallel(profileFns, function (err, profileConfs) {
+
+  function kickoff(profileConfs) {
+    async.parallel([function (cb) {
+      cb()
+    }], function (err, p) {
       var complete = 0;
       if (err) {
         error(err);
@@ -134,44 +161,8 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
           });
       });
     });
-  });
-  let pAssembler = function (pconf, index, arr) {
-    profileFns.push(function (cb) {
-      var testFileGlob = path.resolve(program.baseDirectory, pconf.tests);
-      glob(testFileGlob, {}, function (err, files) {
-        if (err) {
-          return cb(err);
-        }
-        pconf.tests = files;
-        cb(null, pconf);
-      });
-    });
-    if (index === arr.length - 1) {
-      res();
-    }
-  };
-  if (base.parallel && base.parallel === 'file') {
-    pAssembler = function (pconf) {
-      var testFileGlob = path.resolve(program.baseDirectory, pconf.tests);
-      glob(testFileGlob, {}, function (err, files) {
-        if (err) {
-          return rej(err);
-        }
-        files.forEach(function (file) {
-          var justFile = file.split(program.baseDirectory)[1];
-          justFile = filenamify(justFile);
-          profileFns.push(function (cb) {
-            var _pconf = merge({}, pconf);
-            _pconf.tests = [file];
-            filenameAppend(_pconf, justFile);
-            cb(null, _pconf);
-          });
-        });
-        res();
-      });
-    };
   }
-  profilesConf.forEach(pAssembler);
+
 
 
 });
