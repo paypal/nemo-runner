@@ -3,7 +3,7 @@
         "browser": "phantomjs"
     },
     "data": {
-        "baseUrl": "https://www.paypal.com"
+        "baseUrl": "https://www.google.com"
     },
     "profiles": {
         "base": {
