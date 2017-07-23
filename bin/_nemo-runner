@@ -54,57 +54,7 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
     util.kickoff.apply(prefontaine);
 
   });
-  // pyramid
-  var base = config.get('profiles:base');
-  var profiles = program.profile;
-  var greps = program.grep || '';
-  var profilesConf = [];
-  profiles = (profiles instanceof Array) ? profiles : [profiles];
-  greps = (greps instanceof Array) ? greps : [greps];
-  function pyramid(profile, pIndex, pArray) {
-    log('profile %s', profile);
-    var profileObj = config.get(`profiles:${profile}`);
-    greps.forEach(function (grep, gIndex, gArray) {
-      log('grep %s', grep);
-      var profileConf = merge({}, base, profileObj);
-      var label = `profile: ${profile || 'default'}`;
-      label = label + ((grep !== '') ? `, grep: ${grep}` : '');
-      profileConf.label = label;
-      if (!program.timeouts) {
-        profileConf.mocha.timeout = 1200000;
-      }
-      if (grep !== '') {
-        profileConf.mocha.grep = grep;
-        util.append(profileConf, filenamify(grep));
-      }
-      var testFileGlob = path.resolve(program.baseDirectory, profileConf.tests);
-      glob(testFileGlob, {}, function (err, files) {
-        log('glob %s', files);
-        if (err) {
-          return rej(err);
-        }
-        if (base.parallel && base.parallel === 'file') {
-          files.forEach(function (file) {
-            var justFile = file.split(program.baseDirectory)[1];
-            justFile = filenamify(justFile);
-            var _pconf = merge({}, profileConf);
-            _pconf.tests = [file];
-            util.append(_pconf, justFile);
-            log('push file profile %s', profileConf);
-            profilesConf.push(_pconf);
-          });
-        } else {
-          profileConf.tests = files;
-          profilesConf.push(profileConf);
-        }
-        if (pIndex === pArray.length - 1 && gIndex === gArray.length - 1) {
-          util.kickoff(profilesConf, program);
-        }
-      });
 
-    });
-  }
-  // profiles.forEach(pyramid);
 }).catch(function (err) {
   error('problem with main configuration %O', err);
 });
