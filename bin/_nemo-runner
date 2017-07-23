@@ -9,12 +9,11 @@
 var program = require('commander');
 var path = require('path');
 var fs = require('fs');
-var spawn = require('threads').spawn;
 var Nemo = require('nemo');
-var Promise = require('bluebird');
 var cwd = process.cwd();
 var glob = require('glob');
-var instance = require('../lib/instance');
+var util = require('../lib/util');
+var flow = require('../lib/flow');
 var async = require('async');
 var merge = require('lodash.merge');
 var debug = require('debug');
@@ -43,44 +42,39 @@ program
 program._name = 'nemo-runner';
 
 Nemo.Configure(program.baseDirectory, {}).then(function (config) {
+  let prefontaine = {program: program, config: config};
+  flow = flow.map(function (fn) {
+    return fn.bind(prefontaine);
+  });
+  log('flow length %d', flow.length);
+
+  async.series(flow, function () {
+    log('assembled %d instances', prefontaine.instances.length);
+    util.kickoff.apply(prefontaine);
+
+  });
+  // pyramid
   var base = config.get('profiles:base');
   var profiles = program.profile;
   var greps = program.grep || '';
-  var results = [];
   var profilesConf = [];
-
-  function filenameAppend(conf, str) {
-    // handles "mochawesome" and "mocha-jenkins-reporter" so far
-    if (!conf.mocha.reporterOptions) {
-      error('didnt find reporterOptions');
-      return;
-    }
-    if (conf.mocha.reporterOptions.reportFilename) {
-      conf.mocha.reporterOptions.reportFilename = `${conf.mocha.reporterOptions.reportFilename}_${str}`;
-    }
-    if (conf.mocha.reporterOptions.junit_report_path) {
-      conf.mocha.reporterOptions.junit_report_path = conf.mocha.reporterOptions.junit_report_path.replace(/\.xml$/, `_${str}.xml`);
-    }
-  }
-
   profiles = (profiles instanceof Array) ? profiles : [profiles];
   greps = (greps instanceof Array) ? greps : [greps];
-
-  profiles.forEach(function (profile, pIndex, pArray) {
+  function pyramid(profile, pIndex, pArray) {
     log('profile %s', profile);
     var profileObj = config.get(`profiles:${profile}`);
     greps.forEach(function (grep, gIndex, gArray) {
       log('grep %s', grep);
       var profileConf = merge({}, base, profileObj);
-      var profileLabel = `profile: ${profile || 'default'}`;
-      profileLabel = profileLabel + ((grep !== '') ? `, grep: ${grep}` : '');
-      profileConf.profileLabel = profileLabel;
+      var label = `profile: ${profile || 'default'}`;
+      label = label + ((grep !== '') ? `, grep: ${grep}` : '');
+      profileConf.label = label;
       if (!program.timeouts) {
         profileConf.mocha.timeout = 1200000;
       }
       if (grep !== '') {
         profileConf.mocha.grep = grep;
-        filenameAppend(profileConf, filenamify(grep));
+        util.append(profileConf, filenamify(grep));
       }
       var testFileGlob = path.resolve(program.baseDirectory, profileConf.tests);
       glob(testFileGlob, {}, function (err, files) {
@@ -94,7 +88,7 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
             justFile = filenamify(justFile);
             var _pconf = merge({}, profileConf);
             _pconf.tests = [file];
-            filenameAppend(_pconf, justFile);
+            util.append(_pconf, justFile);
             log('push file profile %s', profileConf);
             profilesConf.push(_pconf);
           });
@@ -103,66 +97,14 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
           profilesConf.push(profileConf);
         }
         if (pIndex === pArray.length - 1 && gIndex === gArray.length - 1) {
-          kickoff(profilesConf);
+          util.kickoff(profilesConf, program);
         }
       });
 
     });
-  });
-
-  function kickoff(profileConfs) {
-    async.parallel([function (cb) {
-      cb()
-    }], function (err, p) {
-      var complete = 0;
-      if (err) {
-        error(err);
-        process.exit();
-      }
-      log('result of async', profileConfs);
-      if (profileConfs.length === 1) {
-        // TODO: below doesn't impact debuglogs of modules already loaded
-        process.env = Object.assign({}, process.env, profileConfs[0].env || {});
-        return instance({basedir: program.baseDirectory, profile: profileConfs[0] || 'default'});
-      }
-      // parallel use case
-      profileConfs.forEach(function (profileConf) {
-        var thread = spawn(instance, {env: Object.assign({}, process.env, profileConf.env || {})});
-        thread
-          .send({basedir: program.baseDirectory, profile: profileConf})
-          // The handlers come here: (none of them is mandatory)
-          .on('message', function (summary) {
-            log('Thread complete', summary);
-            results.push(summary);
-            thread.kill();
-          })
-          .on('error', function (er) {
-            error(er);
-          })
-          .on('exit', function () {
-            var totals;
-            complete = complete + 1;
-            thread.removeAllListeners('message');
-            thread.removeAllListeners('error');
-            thread.removeAllListeners('exit');
-            if (complete === profileConfs.length) {
-              totals = {label: 'TOTAL', total: 0, pass: 0, fail: 0};
-              log('Everything done, shutting down the thread pool.');
-              results.forEach(function (result) {
-                totals.total = totals.total + result.total;
-                totals.pass = totals.pass + result.pass;
-                totals.fail = totals.fail + result.fail;
-              });
-              results.push(totals);
-              /* eslint-disable */
-              console.log(results);
-              /* eslint-enable */
-            }
-          });
-      });
-    });
   }
-
-
-
+  // profiles.forEach(pyramid);
+}).catch(function (err) {
+  error('problem with main configuration %O', err);
 });
+
