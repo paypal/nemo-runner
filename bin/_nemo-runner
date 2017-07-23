@@ -11,15 +11,12 @@ var path = require('path');
 var fs = require('fs');
 var Nemo = require('nemo');
 var cwd = process.cwd();
-var glob = require('glob');
 var util = require('../lib/util');
 var flow = require('../lib/flow');
 var async = require('async');
-var merge = require('lodash.merge');
 var debug = require('debug');
 var log = debug('nemo-runner:log');
 var error = debug('nemo-runner:error');
-var filenamify = require('filenamify');
 
 function list(val) {
   return val.split(',');
