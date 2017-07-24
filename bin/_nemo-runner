@@ -30,7 +30,7 @@ program
   .option('-B, --base-directory <path>', 'parent directory for config/ and spec/ (or other test file) directories. relative to cwd', cwdPath)
   .option('-P, --profile [profile]', 'which profile(s) to run, out of the configuration', list)
   .option('-G, --grep <pattern>', 'only run tests matching <pattern>', list)
-  // .option('-F, --file ', 'run parallel by file')
+  .option('-F, --file ', 'run parallel by file')
   .option('--debug-brk', 'enable node\'s debugger breaking on the first line')
   .option('--inspect', 'activate devtools in chrome')
   .option('--no-timeouts', 'remove timeouts in debug/inspect use case')
