@@ -44,13 +44,10 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
     return fn.bind(prefontaine);
   });
   log('flow length %d', flow.length);
-
   async.series(flow, function () {
     log('assembled %d instances', prefontaine.instances.length);
     util.kickoff.apply(prefontaine);
-
   });
-
 }).catch(function (err) {
   error('problem with main configuration %O', err);
 });
