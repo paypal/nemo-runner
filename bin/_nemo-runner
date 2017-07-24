@@ -47,7 +47,6 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
 
   async.series(flow, function () {
     log('assembled %d instances', prefontaine.instances.length);
-    // log('%j', prefontaine.instances);
     util.kickoff.apply(prefontaine);
 
   });
