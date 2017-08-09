@@ -1,6 +1,6 @@
 {
   "name": "nemo-runner",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Wrapper to run nemo/mocha suites",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/grawk/nemo-runner.git"
+    "url": "git+https://github.com/paypal/nemo-runner.git"
   },
   "bin": {
     "nemo-runner": "./bin/nemo-runner",
@@ -24,7 +24,8 @@
   "author": "grawk <mattedelman@gmail.com>",
   "contributors": [
     "grawk <mattedelman@gmail.com>",
-    "Kurt Weiberth <kurt.weiberth@gmail.com>"
+    "Kurt Weiberth <kurt.weiberth@gmail.com>",
+    "Ethan Godt <ethan@ethangodt.com>"
   ],
   "license": "Apache-2.0",
   "bugs": {

@@ -109,6 +109,7 @@ You should have seen two Firefox and two Chrome browser instances open and execu
     -B, --base-directory <path>  parent directory for config/ and spec/ (or other test file) directories. relative to cwd
     -P, --profile [profile]      which profile(s) to run, out of the configuration
     -G, --grep <pattern>         only run tests matching <pattern>
+    -F, --file                   run parallel by file
     --debug-brk                  enable node's debugger breaking on the first line
     --inspect                    activate devtools in chrome
     --no-timeouts                remove timeouts in debug/inspect use case
@@ -121,7 +122,7 @@ You should have seen two Firefox and two Chrome browser instances open and execu
 
 `base.tests` is an absolute path based glob pattern. (e.g. `"tests": "path:spec/!(wdb)*.js",`)
 
-`base.parallel` only valid for 'base'. if set to 'file' it will create a child process for each mocha file
+`base.parallel` only valid for 'base'. if set to 'file' it will create a child process for each mocha file (alternative to `-F` CLI arg)
 
 `base.mocha` mocha options. described elsewhere
 
@@ -129,7 +130,7 @@ You should have seen two Firefox and two Chrome browser instances open and execu
 
 ## Reporters
 
-Recommended reporters are `mochawesome` or `mocha-jenkins-reporter`. `nemo-runner` will automatically append grep/test file names to report names when using either of these.
+Recommended reporters are `mochawesome` or `mocha-jenkins-reporter`. `nemo-runner` will automatically append profile, grep, and test file names to report names when using any of these.
 
 ## How it works
 

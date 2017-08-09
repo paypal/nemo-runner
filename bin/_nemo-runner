@@ -9,18 +9,14 @@
 var program = require('commander');
 var path = require('path');
 var fs = require('fs');
-var spawn = require('threads').spawn;
 var Nemo = require('nemo');
-var Promise = require('bluebird');
 var cwd = process.cwd();
-var glob = require('glob');
-var instance = require('../lib/instance');
+var util = require('../lib/util');
+var flow = require('../lib/flow');
 var async = require('async');
-var merge = require('lodash.merge');
 var debug = require('debug');
 var log = debug('nemo-runner:log');
 var error = debug('nemo-runner:error');
-var filenamify = require('filenamify');
 
 function list(val) {
   return val.split(',');
@@ -34,144 +30,25 @@ program
   .option('-B, --base-directory <path>', 'parent directory for config/ and spec/ (or other test file) directories. relative to cwd', cwdPath)
   .option('-P, --profile [profile]', 'which profile(s) to run, out of the configuration', list)
   .option('-G, --grep <pattern>', 'only run tests matching <pattern>', list)
-  // .option('-F, --file ', 'run parallel by file')
+  .option('-F, --file ', 'run parallel by file')
   .option('--debug-brk', 'enable node\'s debugger breaking on the first line')
   .option('--inspect', 'activate devtools in chrome')
   .option('--no-timeouts', 'remove timeouts in debug/inspect use case')
   .parse(process.argv);
+
 program._name = 'nemo-runner';
+
 Nemo.Configure(program.baseDirectory, {}).then(function (config) {
-  var base = config.get('profiles:base');
-  var profiles = program.profile;
-  var greps = program.grep || '';
-  var results = [];
-  var profilesConf = [];
-  var profileFns = [];
-
-  function filenameAppend(conf, str) {
-    // handles "mochawesome" and "mocha-jenkins-reporter" so far
-    if (!conf.mocha.reporterOptions) {
-      error('didnt find reporterOptions');
-      return;
-    }
-    if (conf.mocha.reporterOptions.reportFilename) {
-      conf.mocha.reporterOptions.reportFilename = `${conf.mocha.reporterOptions.reportFilename}_${str}`;
-    }
-    if (conf.mocha.reporterOptions.junit_report_path) {
-      conf.mocha.reporterOptions.junit_report_path = conf.mocha.reporterOptions.junit_report_path.replace(/\.xml$/, `_${str}.xml`);
-    }
-  }
-
-  profiles = (profiles instanceof Array) ? profiles : [profiles];
-  greps = (greps instanceof Array) ? greps : [greps];
-  profiles.forEach(function (profile) {
-    var profileObj = config.get(`profiles:${profile}`);
-    greps.forEach(function (grep) {
-      var profileConf = merge({}, base, profileObj);
-      var profileLabel = `profile: ${profile || 'default'}`;
-      profileLabel = profileLabel + ((grep !== '') ? `, grep: ${grep}` : '');
-      profileConf.profileLabel = profileLabel;
-      if (!program.timeouts) {
-        profileConf.mocha.timeout = 1200000;
-      }
-      if (grep !== '') {
-        profileConf.mocha.grep = grep;
-        filenameAppend(profileConf, filenamify(grep));
-      }
-      profilesConf.push(profileConf);
-    });
+  let prefontaine = {program: program, config: config};
+  flow = flow.map(function (fn) {
+    return fn.bind(prefontaine);
   });
-  let res, rej;
-  new Promise(function (resolve, reject) {
-    res = resolve;
-    rej = reject;
-  }).then(function kickoff() {
-    async.parallel(profileFns, function (err, profileConfs) {
-      var complete = 0;
-      if (err) {
-        error(err);
-        process.exit();
-      }
-      log('result of async', profileConfs);
-      if (profileConfs.length === 1) {
-        // TODO: below doesn't impact debuglogs of modules already loaded
-        process.env = Object.assign({}, process.env, profileConfs[0].env || {});
-        return instance({basedir: program.baseDirectory, profile: profileConfs[0] || 'default'});
-      }
-      // parallel use case
-      profileConfs.forEach(function (profileConf) {
-        var thread = spawn(instance, {env: Object.assign({}, process.env, profileConf.env || {})});
-        thread
-          .send({basedir: program.baseDirectory, profile: profileConf})
-          // The handlers come here: (none of them is mandatory)
-          .on('message', function (summary) {
-            log('Thread complete', summary);
-            results.push(summary);
-            thread.kill();
-          })
-          .on('error', function (er) {
-            error(er);
-          })
-          .on('exit', function () {
-            var totals;
-            complete = complete + 1;
-            thread.removeAllListeners('message');
-            thread.removeAllListeners('error');
-            thread.removeAllListeners('exit');
-            if (complete === profileConfs.length) {
-              totals = {label: 'TOTAL', total: 0, pass: 0, fail: 0};
-              log('Everything done, shutting down the thread pool.');
-              results.forEach(function (result) {
-                totals.total = totals.total + result.total;
-                totals.pass = totals.pass + result.pass;
-                totals.fail = totals.fail + result.fail;
-              });
-              results.push(totals);
-              /* eslint-disable */
-              console.log(results);
-              /* eslint-enable */
-            }
-          });
-      });
-    });
+  log('flow length %d', flow.length);
+  async.series(flow, function () {
+    log('assembled %d instances', prefontaine.instances.length);
+    util.kickoff.apply(prefontaine);
   });
-  let pAssembler = function (pconf, index, arr) {
-    profileFns.push(function (cb) {
-      var testFileGlob = path.resolve(program.baseDirectory, pconf.tests);
-      glob(testFileGlob, {}, function (err, files) {
-        if (err) {
-          return cb(err);
-        }
-        pconf.tests = files;
-        cb(null, pconf);
-      });
-    });
-    if (index === arr.length - 1) {
-      res();
-    }
-  };
-  if (base.parallel && base.parallel === 'file') {
-    pAssembler = function (pconf) {
-      var testFileGlob = path.resolve(program.baseDirectory, pconf.tests);
-      glob(testFileGlob, {}, function (err, files) {
-        if (err) {
-          return rej(err);
-        }
-        files.forEach(function (file) {
-          var justFile = file.split(program.baseDirectory)[1];
-          justFile = filenamify(justFile);
-          profileFns.push(function (cb) {
-            var _pconf = merge({}, pconf);
-            _pconf.tests = [file];
-            filenameAppend(_pconf, justFile);
-            cb(null, _pconf);
-          });
-        });
-        res();
-      });
-    };
-  }
-  profilesConf.forEach(pAssembler);
-
-
+}).catch(function (err) {
+  error('problem with main configuration %O', err);
 });
+
