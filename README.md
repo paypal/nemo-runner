@@ -130,7 +130,7 @@ You should have seen two Firefox and two Chrome browser instances open and execu
 
 ## Reporters
 
-Recommended reporters are `mochawesome` or `mocha-jenkins-reporter`. `nemo-runner` will automatically append grep/test file names to report names when using either of these.
+Recommended reporters are `mochawesome` or `mocha-jenkins-reporter`. `nemo-runner` will automatically append profile, grep, and test file names to report names when using any of these.
 
 ## How it works
 

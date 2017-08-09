@@ -1,3 +1,7 @@
+## v1.0.2
+
+- append profile name to report filename
+
 ## v1.0.1
 
 - fix file name appending
