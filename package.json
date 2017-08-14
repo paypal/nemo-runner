@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run lint && ./bin/nemo-runner -B test -G @suite1",
+    "test:parallel": "./bin/nemo-runner -B test -G @suite1,@suite2,@suite3,@suite4,@suitex -P chrome,firefox",
     "lint": "eslint ./bin/* ./lib/*"
   },
   "repository": {
