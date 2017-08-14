@@ -1,3 +1,7 @@
+## v1.1.1
+
+- prevent mocha from running against 0 matches in "parallel": "file" mode
+
 ## v1.1.0
 
 - append profile name to report filename
