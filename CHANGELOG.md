@@ -1,4 +1,4 @@
-## [unreleased]
+## 1.2.0
 
 - allow setting concurrency limit in config with `maxConcurrent` for parallel testing
 
