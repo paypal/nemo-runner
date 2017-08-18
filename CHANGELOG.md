@@ -1,3 +1,7 @@
+## [unreleased]
+
+- allow setting concurrency limit in config with `maxConcurrent` for parallel testing
+
 ## v1.1.1
 
 - prevent mocha from running against 0 matches in "parallel": "file" mode

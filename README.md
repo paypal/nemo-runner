@@ -128,6 +128,8 @@ You should have seen two Firefox and two Chrome browser instances open and execu
 
 `base.env` any environment variables you want in the test process
 
+`base.maxConcurrent` a number which represents the max limit of concurrent suites nemo-runner will execute in parallel - if not provided there is no limit
+
 ## Reporters
 
 Recommended reporters are `mochawesome` or `mocha-jenkins-reporter`. `nemo-runner` will automatically append profile, grep, and test file names to report names when using any of these.
