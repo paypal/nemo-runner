@@ -110,7 +110,7 @@ You should have seen two Firefox and two Chrome browser instances open and execu
     -P, --profile [profile]      which profile(s) to run, out of the configuration
     -G, --grep <pattern>         only run tests matching <pattern>
     -F, --file                   run parallel by file
-    -F, --data                   run parallel by data
+    -D, --data                   run parallel by data
     --debug-brk                  enable node's debugger breaking on the first line
     --inspect                    activate devtools in chrome
     --no-timeouts                remove timeouts in debug/inspect use case
