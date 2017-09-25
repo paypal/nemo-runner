@@ -110,6 +110,7 @@ You should have seen two Firefox and two Chrome browser instances open and execu
     -P, --profile [profile]      which profile(s) to run, out of the configuration
     -G, --grep <pattern>         only run tests matching <pattern>
     -F, --file                   run parallel by file
+    -F, --data                   run parallel by data
     --debug-brk                  enable node's debugger breaking on the first line
     --inspect                    activate devtools in chrome
     --no-timeouts                remove timeouts in debug/inspect use case
@@ -118,17 +119,32 @@ You should have seen two Firefox and two Chrome browser instances open and execu
 
 ## Profile options
 
-`base` is the main profile configuration that others will merge into
+### `base`
 
-`base.tests` is an absolute path based glob pattern. (e.g. `"tests": "path:spec/!(wdb)*.js",`)
+is the main profile configuration that others will merge into
 
-`base.parallel` only valid for 'base'. if set to 'file' it will create a child process for each mocha file (alternative to `-F` CLI arg)
+### `base.tests`
 
-`base.mocha` mocha options. described elsewhere
+is an absolute path based glob pattern. (e.g. `"tests": "path:spec/!(wdb)*.js",`)
 
-`base.env` any environment variables you want in the test process
+### `base.parallel`
 
-`base.maxConcurrent` a number which represents the max limit of concurrent suites nemo-runner will execute in parallel - if not provided there is no limit
+only valid for 'base'.
+
+- if set to 'file' it will create a child process for each mocha file (alternative to `-F` CLI arg)
+- if set to 'data' it will create a child process for each object key under `base.data` (alternative to the `-D` CLI arg)
+
+### `base.mocha`
+
+mocha options. described elsewhere
+
+### `base.env`
+
+any environment variables you want in the test process
+
+### `base.maxConcurrent`
+
+a number which represents the max limit of concurrent suites nemo-runner will execute in parallel - if not provided there is no limit
 
 ## Reporters
 
@@ -139,8 +155,49 @@ Recommended reporters are `mochawesome` or `mocha-jenkins-reporter`. `nemo-runne
 nemo-runner injects a `nemo` instance into the Mocha context (for it, before, after, etc functions) which can be accessed by
 `this.nemo` within the test suites.
 
+### Parallel functionality
+
 nemo-runner will execute in parallel `-P (profile)` x `-G (grep)` mocha instances. The example above uses "browser" as the
 profile dimension and suite name as the "grep" dimension. Giving 2x2=4 parallel executions.
+
+In addition to `profile` and `grep`, are the dimensions `file` and `data`.
+
+#### Parallel by `file`
+
+`file` will multiply the existing # of instances by the # of files selected by your configuration.
+
+#### Parallel by `data`
+
+`data` will multiply the existing # of instances by the # of keys found under `profiles.base.data`. It will also replace 
+ `nemo.data` with the value of each keyed object. In other words, you can use this to do parallel, data-driven testing.
+ 
+If you have the following base profile configuration:
+
+```js
+  "profiles": {
+    "base": {
+      "data": {
+        "US": {"url": "http://www.paypal.com"},
+        "FR": {"url": "http://www.paypal.fr"}
+      },
+      "parallel": "data",
+      "tests": "path:spec/test-spec.js",
+      "mocha": {
+        //...
+      }
+    }
+  }
+```
+
+Then the following test will run twice (in parallel) with corresponding values of `nemo.data.url`:
+
+```js
+it('@loadHome@', function () {
+    var nemo = this.nemo;
+    return nemo.driver.get(nemo.data.url);//runs once with paypal.com, once with paypal.fr
+});
+```
+#### Parallel reporting
 
 Since the stdout output is coming to the parent process as it happens, it is most useful to incorporate a reporter which
 can output a separate file per parallel instance. Try using "mochawesome" for that. You will find that nemo-runner is

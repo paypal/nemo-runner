@@ -1,3 +1,7 @@
+## 1.3.0
+
+- enable the `data` parallel feature
+
 ## 1.2.0
 
 - allow setting concurrency limit in config with `maxConcurrent` for parallel testing
