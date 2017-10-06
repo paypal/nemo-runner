@@ -168,7 +168,7 @@ In addition to `profile` and `grep`, are the dimensions `file` and `data`.
 
 #### Parallel by `data`
 
-`data` will multiply the existing # of instances by the # of keys found under `profiles.base.data`. It will also replace 
+`data` will multiply the existing # of instances by the # of keys found under `profiles.base.data`. It can also be overriden per-profile. It will also replace 
  `nemo.data` with the value of each keyed object. In other words, you can use this to do parallel, data-driven testing.
  
 If you have the following base profile configuration:
