@@ -12,14 +12,27 @@
             "env": {
                 "DEBUG": "nemo-runner*"
             },
+            "driver": {
+                "browser": "phantomjs"
+            },
             "mocha": {
                 "timeout": 180000,
                 "reporter": "mochawesome",
                 "retries": 5,
                 "reporterOptions": {
                     "reportDir": "path:report",
-                    "reportFilename": "nemo-chrome"
+                    "reportFilename": "nemo"
                 }
+            }
+        },
+        "chrome": {
+            "driver": {
+                "browser": "phantomjs"
+            }
+        },
+        "firefox": {
+            "driver": {
+                "browser": "phantomjs"
             }
         }
     }
