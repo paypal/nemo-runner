@@ -1,8 +1,10 @@
-## 1.3.0
+## v1.3.0
 
+- kill child processes when they error
+- add parallel test
 - enable the `data` parallel feature
 
-## 1.2.0
+## v1.2.0
 
 - allow setting concurrency limit in config with `maxConcurrent` for parallel testing
 
