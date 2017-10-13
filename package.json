@@ -4,8 +4,10 @@
   "description": "Wrapper to run nemo/mocha suites",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint && ./bin/nemo-runner -B test -G @suite1",
-    "test:parallel": "./bin/nemo-runner -B test -G @suite1,@suite2,@suite3,@suite4,@suitex -P chrome,firefox",
+    "test": "npm run lint && npm run nemo",
+    "nemo": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1",
+    "nemo:d": "./bin/nemo-runner -B test -G @suite1 --debug-brk",
+    "nemo:parallel": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1,@suite2,@suite3,@suite4,@suitex -P chrome,firefox",
     "lint": "eslint ./bin/* ./lib/*"
   },
   "repository": {
