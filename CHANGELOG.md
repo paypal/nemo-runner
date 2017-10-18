@@ -1,4 +1,4 @@
-## unreleased
+## v1.3.1 
 
 - modify driver kill logic to count total suites (fixes nested suites)
 - add nested suites to tests
