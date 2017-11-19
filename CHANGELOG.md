@@ -1,4 +1,9 @@
-## v1.3.1 
+## UNRELEASED
+
+- modify driver kill logic (again) to exit nemo when the `root` mocha Suite ends
+- add current mocha test's context to the `nemo.mocha` property
+
+## v1.3.1
 
 - modify driver kill logic to count total suites (fixes nested suites)
 - add nested suites to tests
