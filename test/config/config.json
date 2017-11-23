@@ -8,7 +8,8 @@
     "profiles": {
         "base": {
             "tests": "path:./*.js",
-            "parallel": "file",
+            "reports": "path:report",
+            "parallel": "filze",
             "env": {
                 "DEBUG": "nemo-runner*"
             },
