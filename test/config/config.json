@@ -9,7 +9,6 @@
         "base": {
             "tests": "path:./*.js",
             "reports": "path:report",
-            "parallel": "filze",
             "env": {
                 "DEBUG": "nemo-runner*"
             },
@@ -19,11 +18,12 @@
             "mocha": {
                 "timeout": 180000,
                 "reporter": "mochawesome",
-                "retries": 5,
-                "reporterOptions": {
-                    "reportDir": "path:report",
-                    "reportFilename": "nemo"
-                }
+                "retries": 5
+            }
+        },
+        "jenkins": {
+            "mocha": {
+                "reporter": "mocha-jenkins-reporter"
             }
         },
         "chrome": {
