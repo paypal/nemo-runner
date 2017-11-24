@@ -11,7 +11,7 @@ var path = require('path');
 var fs = require('fs');
 var Nemo = require('nemo');
 var cwd = process.cwd();
-var util = require('../lib/util');
+var starter = require('../lib/starter');
 var flow = require('../lib/flow');
 var async = require('async');
 var debug = require('debug');
@@ -47,7 +47,7 @@ Nemo.Configure(program.baseDirectory, {}).then(function (config) {
   log('flow length %d', flow.length);
   async.series(flow, function () {
     log('assembled %d instances', prefontaine.instances.length);
-    util.kickoff.apply(prefontaine);
+    starter.apply(prefontaine);
   });
 }).catch(function (err) {
   error('problem with main configuration %O', err);

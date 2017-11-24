@@ -6,6 +6,7 @@
   "scripts": {
     "test": "npm run lint && npm run nemo",
     "nemo": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1",
+    "nemo:jenkins": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1 -P jenkins",
     "nemo:d": "DEBUG=nemo-runner ./bin/nemo-runner -B test -G @suite1 --debug-brk --inspect",
     "nemo:parallel": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1,@suite2,@suite3,@suite4,@suitex -P chrome,firefox",
     "lint": "eslint ./bin/* ./lib/*"
@@ -44,13 +45,15 @@
     "glob": "^7.1.1",
     "lodash.merge": "^4.6.0",
     "mocha": "^3.2.0",
+    "mochawesome": "^2.3.1",
     "moment": "^2.19.2",
-    "threads": "^0.7.2"
+    "threads": "^0.7.2",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
     "eslint-plugin-es6-recommended": "^0.1.2",
-    "mochawesome": "^2.3.0",
+    "mocha-jenkins-reporter": "^0.3.10",
     "nemo": "^2.4.1"
   }
 }
