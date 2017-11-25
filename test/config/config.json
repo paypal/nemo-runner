@@ -17,8 +17,8 @@
             },
             "mocha": {
                 "timeout": 180000,
-                "reporter": "mochawesome",
-                "retries": 5
+                "reporter": "mochawesome"
+//                ,"retries": 5
             }
         },
         "jenkins": {
