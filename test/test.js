@@ -8,7 +8,7 @@ describe('@suite1@suite2@suite3@suite4@', function () {
     if (!nemo.mocha === this) {
       return Promise.reject(new Error('didnt find mocha context at nemo.mocha'));
     }
-    return nemo.driver.get('http://www.yahoo.com')
+    return nemo.driver.get(nemo.data.baseUrl)
       .then(function () {
         return nemo.runner.snap()
       })
