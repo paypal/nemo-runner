@@ -6,9 +6,10 @@
   "scripts": {
     "test": "npm run lint && npm run nemo",
     "nemo": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1",
-    "nemo:jenkins": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1 -P jenkins",
-    "nemo:d": "DEBUG=nemo-runner ./bin/nemo-runner -B test -G @suite1 --debug-brk --inspect",
+    "nemo:debug": "DEBUG=nemo-runner ./bin/nemo-runner -B test -G @suite1 --debug-brk --inspect",
     "nemo:parallel": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1,@suite2,@suite3,@suite4,@suitex -P chrome,firefox",
+    "nemo:parallel:data": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -P search,pay -D -F",
+    "nemo:xunit": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1 -P xunit",
     "lint": "eslint ./bin/* ./lib/*"
   },
   "repository": {
@@ -53,7 +54,6 @@
   "devDependencies": {
     "eslint": "^3.19.0",
     "eslint-plugin-es6-recommended": "^0.1.2",
-    "mocha-jenkins-reporter": "^0.3.10",
     "nemo": "^2.4.1"
   }
 }

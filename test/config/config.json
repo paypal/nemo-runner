@@ -18,12 +18,34 @@
             "mocha": {
                 "timeout": 180000,
                 "reporter": "mochawesome"
-//                ,"retries": 5
             }
         },
-        "jenkins": {
+        "xunit": {
             "mocha": {
-                "reporter": "mocha-jenkins-reporter"
+                "reporter": "xunit",
+                "reporterOptions": {
+                    "output": "this just tells nemo-runner we want to output files"
+                }
+            }
+        },
+        "search": {
+            "data": {
+                "google": {
+                    "baseUrl": "https://www.google.com"
+                },
+                "yahoo": {
+                    "baseUrl": "http://www.yahoo.com"
+                }
+            }
+        },
+        "pay": {
+            "data": {
+                "paypal": {
+                    "baseUrl": "https://www.paypal.com"
+                },
+                "square": {
+                    "baseUrl": "http://www.squareup.com"
+                }
             }
         },
         "chrome": {

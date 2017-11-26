@@ -134,6 +134,10 @@ only valid for 'base'.
 - if set to 'file' it will create a child process for each mocha file (alternative to `-F` CLI arg)
 - if set to 'data' it will create a child process for each object key under `base.data` (alternative to the `-D` CLI arg)
 
+### `base.reports`
+
+Recommended to set this as `path:report`, which will create a `report` directory beneath your base directory. See `Reporters` below.
+
 ### `base.mocha`
 
 mocha options. described elsewhere
@@ -146,9 +150,29 @@ any environment variables you want in the test process
 
 a number which represents the max limit of concurrent suites nemo-runner will execute in parallel - if not provided there is no limit
 
-## Reporters
+## Reporting
 
-Recommended reporters are `mochawesome` or `mocha-jenkins-reporter`. `nemo-runner` will automatically append profile, grep, and test file names to report names when using any of these.
+Recommended reporters are `mochawesome` or `xunit`. If you use either of these, `nemo-runner` will generate timestamped directories for each run.
+ The reports will be further separated based on the parallel options. E.g.
+
+![50%](static/report-output.png)
+
+In the above example, parallel options were "profile", "file", and "data".
+
+A summary for all parallel instances can be found at `summary.json`
+
+### Screenshots
+
+`nemo-runner` will take a screenshot automatically after each test execution (pass or fail). The screenshots will be 
+named based on the respective test name. E.g. `my awesome test.after.png`.
+
+You can use `nemo.runner.snap()` at any point in a test, to grab a screenshot. These screenshots will be named based on 
+the respective test name, and number of screenshots taken using `nemo.runner.snap()`. E.g.
+- `my awesome test.1.png`
+- `my awesome test.2.png`
+- `my awesome test.3.png`
+
+If you use the `mochawesome` reporter, you will see these screeshots in the `Additional Context` section of the html report.
 
 ## Adding Nemo into the mocha context and vice versa
 
@@ -198,12 +222,11 @@ it('@loadHome@', function () {
     return nemo.driver.get(nemo.data.url);//runs once with paypal.com, once with paypal.fr
 });
 ```
+
 #### Parallel reporting
 
-Since the stdout output is coming to the parent process as it happens, it is most useful to incorporate a reporter which
-can output a separate file per parallel instance. Try using "mochawesome" for that. You will find that nemo-runner is
-already set up to use mochawesome reports and give them an appropriate filename. [Please have a look at the nemo-example-app
-for a full example using "mochawesome"](https://github.com/paypal/nemo-example-app/blob/nemo-3-alpha/test/functional/config/profiles.json).
+Using a reporter which gives file output will be the most beneficial. `nemo-runner` comes out of the box, ready to use `mochawesome` or `xunit` for outputting a report per parallel instance.
+
 
 ### Mocha options
 
