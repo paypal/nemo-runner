@@ -136,7 +136,7 @@ only valid for 'base'.
 
 ### `base.reports`
 
-Recommended to set this as `path:report`, which will create a `report` directory beneath your base directory. See `Reporters` below.
+Recommended to set this as `path:report`, which will create a `report` directory beneath your base directory. See `Reporting` below.
 
 ### `base.mocha`
 
