@@ -1,17 +1,4 @@
-dist: trusty
-sudo: true
-
-addons:
-  chrome: stable
-
 language: node_js
 
 node_js:
   - "8"
-
-before_install:
-  - wget https://chromedriver.storage.googleapis.com/2.33/chromedriver_linux64.zip -O /tmp/chromedriver
-  - chmod 777 /tmp/chromedriver
-
-env:
-  - CHROME_DRIVER_PATH=/tmp/chromedriver
