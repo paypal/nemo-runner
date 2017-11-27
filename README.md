@@ -144,7 +144,13 @@ mocha options. described elsewhere
 
 ### `base.env`
 
-any environment variables you want in the test process
+any environment variables you want in the test process.
+
+NOTES:
+- currently `base.env` is only honored if nemo-runner is launching parallel nemo instances (each as its own process). 
+If nemo-runner launches a single nemo instance in the main process, these are ignored.
+- any env variables in your nemo-runner process will be merged into the env for the parallel processes 
+(along with whatever is set under `base.env`)
 
 ### `base.maxConcurrent`
 
