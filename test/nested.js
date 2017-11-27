@@ -1,5 +1,6 @@
 /*global describe:true, nemo:true, it:true, before:true, after:true*/
 'use strict';
+process.env.PATH = `${process.env.PATH}:/tmp`;
 
 describe('@suite1@suite2@suite3@suite4@', function () {
   it('may fail a few times1', function () {
