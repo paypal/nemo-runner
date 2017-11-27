@@ -1,3 +1,11 @@
+## UNRELEASED
+
+- works for xunit and mochawesome reporters:
+  - group nemo instance reports under directory [MMDDYYYY]/[HHMMSS]
+  - add main report.json for set of parallel instances
+- add "afterEach" screenshot (for mochawesome, adds image directly to report)
+- add "nemo.runner.snap" method to take a screenshot
+
 ## v1.4.0
 
 - modify driver kill logic (again) to exit nemo when the `root` mocha Suite ends
