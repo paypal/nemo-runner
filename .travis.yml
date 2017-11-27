@@ -14,4 +14,4 @@ before_install:
   - chmod 777 /tmp/chromedriver
 
 env:
-  - CHROME_DRIVER_PATH=/tmp/chromedriver
+  - PATH=/tmp/chromedriver:$PATH
