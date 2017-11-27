@@ -1,4 +1,4 @@
-## UNRELEASED
+## v1.4.0
 
 - modify driver kill logic (again) to exit nemo when the `root` mocha Suite ends
 - add current mocha test's context to the `nemo.mocha` property
