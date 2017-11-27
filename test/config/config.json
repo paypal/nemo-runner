@@ -1,6 +1,6 @@
 {
     "driver": {
-        "browser": "phantomjs"
+        "browser": "chrome"
     },
     "plugins": {
       "view": {
@@ -18,7 +18,7 @@
                 "DEBUG": "nemo-runner*"
             },
             "driver": {
-                "browser": "phantomjs"
+                "browser": "chrome"
             },
             "mocha": {
                 "timeout": 180000,
@@ -62,7 +62,7 @@
                 "paypal": {
                     "baseUrl": "https://www.paypal.com",
                     "signupButton": "#signup-button",//<a href="https://www.paypal.com/us/webapps/mpp/account-selection" id="signup-button" ...>
-                    "signupForm": "#radio-personal"//<input id="radio-personal" class="radio checked" ...>
+                    "signupForm": "#cta-btn"
                 },
                 "square": {
                     "baseUrl": "http://www.squareup.com",
@@ -73,12 +73,12 @@
         },
         "chrome": {
             "driver": {
-                "browser": "phantomjs"//just pretending this is another browser :)
+                "browser": "chrome"//just pretending this is another browser :)
             }
         },
         "firefox": {
             "driver": {
-                "browser": "phantomjs"//just pretending this is another browser :)
+                "browser": "chrome"//just pretending this is another browser :)
             }
         }
     }

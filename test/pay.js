@@ -7,7 +7,6 @@ describe('@pay@', function () {
     let {baseUrl, signupButton, signupForm} = nemo.data;
 
     await nemo.driver.get(baseUrl);
-    await nemo.runner.snap();
     await nemo.view._find(signupButton).click();
     await nemo.view._waitVisible(signupForm);
   });
