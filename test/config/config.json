@@ -2,12 +2,17 @@
     "driver": {
         "browser": "phantomjs"
     },
+    "plugins": {
+      "view": {
+          "module": "nemo-view"
+      }
+    },
     "data": {
         "baseUrl": "https://www.google.com"
     },
     "profiles": {
         "base": {
-            "tests": "path:./*.js",
+            "tests": "path:./nested*.js",
             "reports": "path:report",
             "env": {
                 "DEBUG": "nemo-runner*"
@@ -29,33 +34,51 @@
             }
         },
         "search": {
+            "tests": "path:./search.js",
             "data": {
                 "google": {
-                    "baseUrl": "https://www.google.com"
+                    "baseUrl": "https://www.google.com",
+                    "input": "input[name=q]",
+                    "button": "input[type=submit][name=btnK]",
+                    "result": "#search"
                 },
                 "yahoo": {
-                    "baseUrl": "http://www.yahoo.com"
+                    "baseUrl": "http://www.yahoo.com",
+                    "input": "input[name=p]",
+                    "button": "#uh-search-button",
+                    "result": "#results"
+                },
+                "bing": {
+                    "baseUrl": "http://www.bing.com",
+                    "input": "input[name=q]",
+                    "button": "input[name=go]",
+                    "result": "#b_results"
                 }
             }
         },
         "pay": {
+            "tests": "path:./pay.js",
             "data": {
                 "paypal": {
-                    "baseUrl": "https://www.paypal.com"
+                    "baseUrl": "https://www.paypal.com",
+                    "signupButton": "#signup-button",//<a href="https://www.paypal.com/us/webapps/mpp/account-selection" id="signup-button" ...>
+                    "signupForm": "#radio-personal"//<input id="radio-personal" class="radio checked" ...>
                 },
                 "square": {
-                    "baseUrl": "http://www.squareup.com"
+                    "baseUrl": "http://www.squareup.com",
+                    "signupButton": "a.button[href*=signup]",//<a class="button" href="/signup/us?lang_code=en">Sign up with Square</a>
+                    "signupForm": "body.signup-page"//<body class="mac unknown ember-application signup-page">
                 }
             }
         },
         "chrome": {
             "driver": {
-                "browser": "phantomjs"
+                "browser": "phantomjs"//just pretending this is another browser :)
             }
         },
         "firefox": {
             "driver": {
-                "browser": "phantomjs"
+                "browser": "phantomjs"//just pretending this is another browser :)
             }
         }
     }
