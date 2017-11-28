@@ -1,4 +1,4 @@
-## UNRELEASED
+## v1.4.1
 
 - fix for #25 (data parallel feature doesn't use specific profile data object)
 
