@@ -1,4 +1,4 @@
-## UNRELEASED
+## v1.5.0-alpha
 
 - works for xunit and mochawesome reporters:
   - group nemo instance reports under directory [MMDDYYYY]/[HHMMSS]
