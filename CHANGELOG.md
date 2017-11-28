@@ -1,3 +1,7 @@
+## UNRELEASED
+
+- fix for #25 (data parallel feature doesn't use specific profile data object)
+
 ## v1.4.0
 
 - modify driver kill logic (again) to exit nemo when the `root` mocha Suite ends
