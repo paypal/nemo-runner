@@ -15,6 +15,7 @@ process.argv.slice(2).forEach(function (arg) {
   case '--debug':
   case '--debug-brk':
   case '--inspect':
+  case '--inspect-brk':
     args.unshift(arg);
     break;
   default:

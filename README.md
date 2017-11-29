@@ -150,11 +150,12 @@ a number which represents the max limit of concurrent suites nemo-runner will ex
 
 Recommended reporters are `mochawesome` or `mocha-jenkins-reporter`. `nemo-runner` will automatically append profile, grep, and test file names to report names when using any of these.
 
-## How it works
+## Adding Nemo into the mocha context and vice versa
 
 nemo-runner injects a `nemo` instance into the Mocha context (for it, before, after, etc functions) which can be accessed by
 `this.nemo` within the test suites.
 
+nemo-runner also adds the current test's context to `nemo.mocha`. That can be useful if you want to access or modify the test's context from within a nemo plugin.
 ### Parallel functionality
 
 nemo-runner will execute in parallel `-P (profile)` x `-G (grep)` mocha instances. The example above uses "browser" as the
