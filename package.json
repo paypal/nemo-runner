@@ -1,13 +1,17 @@
 {
   "name": "nemo-runner",
-  "version": "1.4.1",
+  "version": "1.5.0-alpha.2",
   "description": "Wrapper to run nemo/mocha suites",
   "main": "index.js",
   "scripts": {
     "test": "npm run lint && npm run nemo",
     "nemo": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1",
-    "nemo:d": "./bin/nemo-runner -B test -G @suite1 --debug-brk",
+    "nemo:debug": "DEBUG=nemo-runner ./bin/nemo-runner -B test -G @suite1 --debug-brk --inspect",
     "nemo:parallel": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1,@suite2,@suite3,@suite4,@suitex -P chrome,firefox",
+    "nemo:parallel:data": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -P search,pay -D",
+    "nemo:search": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -P search -D",
+    "nemo:pay": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -P pay -D",
+    "nemo:xunit": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1 -P xunit",
     "lint": "eslint ./bin/* ./lib/*"
   },
   "repository": {
@@ -44,12 +48,15 @@
     "glob": "^7.1.1",
     "lodash.merge": "^4.6.0",
     "mocha": "^3.2.0",
-    "threads": "^0.7.2"
+    "mochawesome": "^2.3.1",
+    "moment": "^2.19.2",
+    "threads": "^0.7.2",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
     "eslint-plugin-es6-recommended": "^0.1.2",
-    "mochawesome": "^2.3.0",
-    "nemo": "^2.4.1"
+    "nemo": "^2.4.1",
+    "nemo-view": "^2.2.3"
   }
 }
