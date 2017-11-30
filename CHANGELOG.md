@@ -5,7 +5,7 @@
   - add main report.json for set of parallel instances
 - add "afterEach" screenshot (for mochawesome, adds image directly to report)
 - add "nemo.runner.snap" method to take a screenshot
-
+- fix: instance data not overriding main `nemo.data` object
 ## v1.4.1
 
 - fix for #25 (data parallel feature doesn't use specific profile data object)
