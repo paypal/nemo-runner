@@ -4,7 +4,8 @@
     },
     "plugins": {
       "view": {
-          "module": "nemo-view"
+          "module": "nemo-view",
+          "arguments": ["path:locator"]
       }
     },
     "data": {
@@ -69,6 +70,13 @@
                     "signupButton": "a.button[href*=signup]",//<a class="button" href="/signup/us?lang_code=en">Sign up with Square</a>
                     "signupForm": "body.signup-page"//<body class="mac unknown ember-application signup-page">
                 }
+            }
+        },
+        "form": {
+            "tests": "path:./form.js",
+            "data": {
+                "useme": "require:./config/useme",
+                "baseurl": "https://mdn.github.io/learning-area/html/forms/your-first-HTML-form/first-form-styled.html"
             }
         },
         "chrome": {

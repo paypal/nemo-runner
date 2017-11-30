@@ -12,6 +12,7 @@
     "nemo:parallel:data": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -P search,pay -D",
     "nemo:search": "SELENIUM_PROMISE_MANAGER=0 DEBUG=nemo-runner* ./bin/nemo-runner -B test -P search -D",
     "nemo:pay": "SELENIUM_PROMISE_MANAGER=0 DEBUG=nemo-runner* ./bin/nemo-runner -B test -P pay -D",
+    "nemo:form": "SELENIUM_PROMISE_MANAGER=0 DEBUG=nemo-runner* ./bin/nemo-runner -B test -P form",
     "nemo:xunit": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1 -P xunit",
     "lint": "eslint ./bin/* ./lib/*"
   },
