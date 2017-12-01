@@ -2,14 +2,14 @@
 'use strict';
 
 describe('@search@', function () {
-  it('should execute a web search', function () {
+  it('should execute a web search', async function () {
     let nemo = this.nemo;
-    return nemo.driver.get(nemo.data.baseUrl)
-      .then(function () {
-        nemo.view._find(nemo.data.input).sendKeys('nemo selenium');
-        nemo.view._find(nemo.data.button).click();
-        nemo.view._waitVisible(nemo.data.result);
-      })
+    let {baseUrl, input, button, result} = nemo.data;
 
+    await nemo.driver.get(baseUrl);
+    await nemo.view._find(input).sendKeys('nemo selenium');
+    await nemo.view._find(input).sendKeys(nemo.wd.Key.TAB); // close any modal overlay (like google has)
+    await nemo.view._find(button).click();
+    await nemo.view._waitVisible(result);
   });
 });

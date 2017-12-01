@@ -4,7 +4,8 @@
     },
     "plugins": {
       "view": {
-          "module": "nemo-view"
+          "module": "nemo-view",
+          "arguments": ["path:locator"]
       }
     },
     "data": {
@@ -14,7 +15,7 @@
         "base": {
             "tests": "path:./nested*.js",
             "reports": "path:report",
-            "env": {
+            "env": { // these only get set when running in parallel (child processes from main process
                 "DEBUG": "nemo-runner*"
             },
             "driver": {
@@ -62,13 +63,20 @@
                 "paypal": {
                     "baseUrl": "https://www.paypal.com",
                     "signupButton": "#signup-button",//<a href="https://www.paypal.com/us/webapps/mpp/account-selection" id="signup-button" ...>
-                    "signupForm": "#radio-personal"//<input id="radio-personal" class="radio checked" ...>
+                    "signupForm": "#cta-btn"
                 },
                 "square": {
                     "baseUrl": "http://www.squareup.com",
                     "signupButton": "a.button[href*=signup]",//<a class="button" href="/signup/us?lang_code=en">Sign up with Square</a>
                     "signupForm": "body.signup-page"//<body class="mac unknown ember-application signup-page">
                 }
+            }
+        },
+        "form": {
+            "tests": "path:./form.js",
+            "data": {
+                "useme": "require:./config/useme",
+                "baseurl": "https://mdn.github.io/learning-area/html/forms/your-first-HTML-form/first-form-styled.html"
             }
         },
         "chrome": {

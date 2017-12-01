@@ -1,16 +1,18 @@
 {
   "name": "nemo-runner",
-  "version": "1.5.0-alpha.2",
+  "version": "2.0.0-alpha.1",
   "description": "Wrapper to run nemo/mocha suites",
   "main": "index.js",
   "scripts": {
     "test": "npm run lint && npm run nemo",
     "nemo": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1",
+    "nemo:no:selenium:promises": "SELENIUM_PROMISE_MANAGER=0 DEBUG=nemo-runner* ./bin/nemo-runner -B test -P pay -D",
     "nemo:debug": "DEBUG=nemo-runner ./bin/nemo-runner -B test -G @suite1 --debug-brk --inspect",
     "nemo:parallel": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1,@suite2,@suite3,@suite4,@suitex -P chrome,firefox",
     "nemo:parallel:data": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -P search,pay -D",
-    "nemo:search": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -P search -D",
-    "nemo:pay": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -P pay -D",
+    "nemo:search": "SELENIUM_PROMISE_MANAGER=0 DEBUG=nemo-runner* ./bin/nemo-runner -B test -P search -D",
+    "nemo:pay": "SELENIUM_PROMISE_MANAGER=0 DEBUG=nemo-runner* ./bin/nemo-runner -B test -P pay -D",
+    "nemo:form": "SELENIUM_PROMISE_MANAGER=0 DEBUG=nemo-runner* ./bin/nemo-runner -B test -P form",
     "nemo:xunit": "DEBUG=nemo-runner* ./bin/nemo-runner -B test -G @suite1 -P xunit",
     "lint": "eslint ./bin/* ./lib/*"
   },
@@ -41,7 +43,6 @@
   "homepage": "https://github.com/grawk/nemo-runner#readme",
   "dependencies": {
     "async": "^2.5.0",
-    "bluebird": "^3.5.0",
     "commander": "^2.9.0",
     "debug": "^2.6.3",
     "filenamify": "^2.0.0",
@@ -56,7 +57,7 @@
   "devDependencies": {
     "eslint": "^3.19.0",
     "eslint-plugin-es6-recommended": "^0.1.2",
-    "nemo": "^2.4.1",
-    "nemo-view": "^2.2.3"
+    "nemo": "^3",
+    "nemo-view": "^3"
   }
 }
