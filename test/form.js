@@ -1,13 +1,9 @@
-/*global describe:true, nemo:true, it:true, before:true, after:true*/
-'use strict';
-
 
 describe('@form@', function () {
   it('should fill in a simple form', async function () {
     let nemo = this.nemo;
 
     let {name, email, message, sendButton, result} = nemo.view.form;
-
     await nemo.driver.get(nemo.data.baseUrl);
     await name().sendKeys('Bill Withers');
     await email().sendKeys('bwithers@soul.singer');

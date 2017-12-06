@@ -9,21 +9,21 @@
 var program = require('commander');
 var path = require('path');
 var fs = require('fs');
-var Nemo = require('nemo');
 var cwd = process.cwd();
-var starter = require('../lib/starter');
-var flow = require('../lib/flow');
-var async = require('async');
+var server = require('../lib/server');
 var debug = require('debug');
 var log = debug('nemo-runner:log');
 var error = debug('nemo-runner:error');
+var prefontaine = require('../lib/prefontaine');
 
 function list(val) {
   return val.split(',');
 }
+
 function cwdPath(rel) {
   return path.resolve(cwd, rel);
 }
+
 program
   .version(JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8')).version)
   .usage('[options]')
@@ -32,6 +32,7 @@ program
   .option('-G, --grep <pattern>', 'only run tests matching <pattern>', list)
   .option('-F, --file ', 'run parallel by file')
   .option('-D, --data ', 'run parallel by data')
+  .option('-S, --server ', 'run the nemo-runner web server')
   .option('--debug-brk', 'enable node\'s debugger breaking on the first line')
   .option('--inspect', 'activate devtools in chrome')
   .option('--no-timeouts', 'remove timeouts in debug/inspect use case')
@@ -39,17 +40,16 @@ program
 
 program._name = 'nemo-runner';
 
-Nemo.Configure(program.baseDirectory, {}).then(function (config) {
-  let prefontaine = {program: program, config: config};
-  flow = flow.map(function (fn) {
-    return fn.bind(prefontaine);
+// are we launching the server?
+if (program.server) {
+  log('CLI launching server');
+  return server(program);
+}
+log('CLI launching runner');
+prefontaine(program)
+  .then(function (pre) {
+    return prefontaine.start(pre);
+  })
+  .catch(function (err) {
+    error('problem with start %O', err);
   });
-  log('flow length %d', flow.length);
-  async.series(flow, function () {
-    log('assembled %d instances', prefontaine.instances.length);
-    starter.apply(prefontaine);
-  });
-}).catch(function (err) {
-  error('problem with main configuration %O', err);
-});
-

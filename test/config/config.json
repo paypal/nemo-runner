@@ -15,11 +15,11 @@
         "base": {
             "tests": "path:./nested*.js",
             "reports": "path:report",
-            "env": { // these only get set when running in parallel (child processes from main process
+            "env": { // these only get set when running in parallel (child processes from main process)
                 "DEBUG": "nemo-runner*"
             },
             "driver": {
-                "browser": "phantomjs"
+                "browser": "chrome"
             },
             "mocha": {
                 "timeout": 180000,
@@ -36,6 +36,7 @@
         },
         "search": {
             "tests": "path:./search.js",
+            "parallel": "data",
             "data": {
                 "google": {
                     "baseUrl": "https://www.google.com",
@@ -59,6 +60,7 @@
         },
         "pay": {
             "tests": "path:./pay.js",
+            "parallel": "data",
             "data": {
                 "paypal": {
                     "baseUrl": "https://www.paypal.com",
@@ -76,7 +78,7 @@
             "tests": "path:./form.js",
             "data": {
                 "useme": "require:./config/useme",
-                "baseurl": "https://mdn.github.io/learning-area/html/forms/your-first-HTML-form/first-form-styled.html"
+                "baseUrl": "https://mdn.github.io/learning-area/html/forms/your-first-HTML-form/first-form-styled.html"
             }
         },
         "chrome": {

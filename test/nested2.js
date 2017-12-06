@@ -1,5 +1,3 @@
-/*global describe:true, nemo:true, it:true, before:true, after:true*/
-'use strict';
 
 describe('@suite1.2@suite2.2@suite3.2@suite4.2@', function () {
     it('may fail a few times3', function () {
